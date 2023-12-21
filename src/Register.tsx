@@ -11,7 +11,15 @@ interface Props {
 }
 
 function Register({ id, partySocket, teams }: Props) {
-  const [teamName, setTeamName] = useState('');
+  const [teamName, setTeamName] = useState(
+    localStorage.getItem('navidad2023Team') ?? '',
+  );
+
+  const onChangeTeamInput = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const text = e.target.value;
+    setTeamName(text);
+    localStorage.setItem('navidad2023Team', text);
+  };
 
   const submitTeam = () => {
     const myTeam = teams.find((team) => team.name === teamName);
@@ -32,7 +40,7 @@ function Register({ id, partySocket, teams }: Props) {
         Navidad 2023
       </p>
       <div className="mt-8 flex">
-        <Input value={teamName} onChange={(e) => setTeamName(e.target.value)} />
+        <Input value={teamName} onChange={onChangeTeamInput} />
         <Button onClick={submitTeam}>Ok</Button>
       </div>
     </div>

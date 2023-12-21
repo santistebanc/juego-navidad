@@ -1,21 +1,36 @@
 import type * as Party from 'partykit/server';
-import { generateName } from './nameGenerator';
-import { Message, Team } from '../interfaces';
+import { Game, Message, Team } from '../interfaces';
 
 export default class WebSocketServer implements Party.Server {
   constructor(readonly party: Party.Party) {}
 
   teams: Team[] = [];
+  game?: Game;
+  buzzes: string[] = [];
 
   onMessage(message: string) {
     const data = JSON.parse(message) as Message;
-    if (data.type === 'update') {
-      this.teams = data.teams;
+    if (data.type === 'buzz') {
+      if (this.game?.data.type === 'trivia') {
+        if (!this.buzzes.includes(data.id)) this.buzzes.push(data.id);
+      }
+    } else if (data.type === 'update') {
+      if (data.teams) this.teams = data.teams;
+      if (data.game === null) {
+        this.buzzes = [];
+        this.game = undefined;
+      }
+      if (data.game) {
+        this.buzzes = [];
+        this.game = data.game;
+      }
     }
     this.party.broadcast(
       JSON.stringify({
         type: 'update',
         teams: this.teams,
+        game: this.game,
+        buzzes: this.buzzes,
       }),
     );
   }
@@ -46,6 +61,7 @@ export default class WebSocketServer implements Party.Server {
       JSON.stringify({
         type: 'update',
         teams: this.teams,
+        game: this.game,
       }),
     );
   }
