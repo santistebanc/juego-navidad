@@ -1,19 +1,20 @@
-import PartySocket from "partysocket";
 import BuzzerButton from "./BuzzerButton";
 import { cn } from "./lib/utils";
+import { useData } from "./DataContext";
 
-interface Props {
-  id: string;
-  partySocket: PartySocket;
-  buzzStatus: "idle" | "first" | "late";
-}
-
-function TriviaUserQuestion({ id, partySocket, buzzStatus }: Props) {
-  console.log("///////////////buzzStatus", buzzStatus);
+function TriviaUserQuestion() {
+  const { id, page, buzz, gameBuzzes, team } = useData();
 
   const handleClick = () => {
-    partySocket.send(JSON.stringify({ type: "buzz", id }));
+    buzz(id, page);
   };
+  const buzzStatus =
+    gameBuzzes[0] === team
+      ? "first"
+      : gameBuzzes.includes(team)
+      ? "late"
+      : "idle";
+
   return (
     <div className="text-center">
       <header

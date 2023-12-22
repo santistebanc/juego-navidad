@@ -1,74 +1,71 @@
 import type * as Party from "partykit/server";
-import { Game, Message, Team } from "../interfaces";
+import { ClientMessage } from "../interfaces";
+import { games as gamesList } from "../games";
 
 export default class WebSocketServer implements Party.Server {
   constructor(readonly party: Party.Party) {}
 
-  teams: Team[] = [];
-  game?: Game;
-  buzzes: string[] = [];
+  players: Record<string, string> = {};
+  games: string[] = Object.keys(gamesList);
+  buzzes: Record<string, string[]> = {};
+  points: Record<string, number> = {};
+  page: "lobby" | string = "lobby";
+  paused: boolean = false;
 
   onMessage(message: string) {
-    const data = JSON.parse(message) as Message;
-    if (data.type === "buzz") {
-      if (this.game?.data.type === "trivia") {
-        if (!this.buzzes.includes(data.id)) this.buzzes.push(data.id);
+    const data = JSON.parse(message) as ClientMessage;
+    if (data.action === "buzz") {
+      const team = this.players[data.playerId];
+      if (!this.buzzes[data.gameId]) {
+        this.paused = true;
+        this.buzzes[data.gameId] = [team];
+      } else if (!this.buzzes[data.gameId].includes(team)) {
+        this.buzzes[data.gameId].push(team);
       }
-    } else if (data.type === "update") {
-      if (data.teams) this.teams = data.teams;
-      if (data.game === null) {
-        this.buzzes = [];
-        this.game = undefined;
+    } else if (data.action === "assignTeam") {
+      this.players[data.playerId] = data.teamName;
+    } else if (data.action === "goToPage") {
+      this.page = data.page;
+    } else if (data.action === "togglePause") {
+      this.paused = data.state !== undefined ? data.state : !this.paused;
+    } else if (data.action === "clearBuzzes") {
+      delete this.buzzes[data.gameId];
+    } else if (data.action === "givePoints") {
+      if (!this.points[data.team]) {
+        this.points[data.team] = 0;
       }
-      if (data.game) {
-        this.buzzes = [];
-        this.game = data.game;
-      }
+      this.points[data.team] += data.points;
     }
-    this.party.broadcast(
-      JSON.stringify({
-        type: "update",
-        teams: this.teams,
-        game: this.game,
-        buzzes: this.buzzes,
-      })
-    );
+    this.update();
   }
+
   onConnect(connection: Party.Connection) {
-    connection.send(JSON.stringify({ type: "connect", id: connection.id }));
     this.update();
   }
 
   onClose(connection: Party.Connection) {
-    const team = this.teams.find((team) =>
-      team.players.includes(connection.id)
-    );
-    const buzz = this.buzzes.find((buzz) => buzz === connection.id);
-
-    if (team) {
-      const idx = team.players.indexOf(connection.id);
-      if (idx !== -1) {
-        team.players.splice(idx, 1);
-      }
-      if (team.players.length === 0) {
-        this.teams.splice(this.teams.indexOf(team), 1);
-      }
-    }
-
-    if (buzz) {
-      this.buzzes.splice(this.buzzes.indexOf(buzz), 1);
-    }
-
+    delete this.players[connection.id];
     this.update();
   }
 
   update() {
+    console.log({
+      players: this.players,
+      games: this.games,
+      buzzes: this.buzzes,
+      points: this.points,
+      page: this.page,
+      paused: this.paused,
+    });
+
     this.party.broadcast(
       JSON.stringify({
-        type: "update",
-        teams: this.teams,
-        game: this.game,
+        players: this.players,
+        games: this.games,
         buzzes: this.buzzes,
+        points: this.points,
+        page: this.page,
+        paused: this.paused,
       })
     );
   }

@@ -1,37 +1,23 @@
-import { useState } from 'react';
-import { Input } from './components/ui/input';
-import { Button } from './components/ui/button';
-import PartySocket from 'partysocket';
-import { Team } from 'interfaces';
+import { useState } from "react";
+import { Input } from "./components/ui/input";
+import { Button } from "./components/ui/button";
+import { useData } from "./DataContext";
 
-interface Props {
-  id?: string;
-  partySocket: PartySocket;
-  teams: Team[];
-}
+function Register() {
+  const { id, assignTeam } = useData();
 
-function Register({ id, partySocket, teams }: Props) {
   const [teamName, setTeamName] = useState(
-    localStorage.getItem('navidad2023Team') ?? '',
+    localStorage.getItem("navidad2023Team") ?? ""
   );
 
   const onChangeTeamInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     const text = e.target.value;
     setTeamName(text);
-    localStorage.setItem('navidad2023Team', text);
+    localStorage.setItem("navidad2023Team", text);
   };
 
   const submitTeam = () => {
-    const myTeam = teams.find((team) => team.name === teamName);
-    const newTeams = [...teams];
-    if (id && !myTeam) {
-      newTeams.push({ name: teamName, points: 0, players: [id] });
-      console.log('here', newTeams);
-      partySocket.send(JSON.stringify({ type: 'update', teams: newTeams }));
-    } else if (id && myTeam && !myTeam.players.includes(id)) {
-      newTeams[newTeams.indexOf(myTeam)].players.push(id);
-      partySocket.send(JSON.stringify({ type: 'update', teams: newTeams }));
-    }
+    assignTeam(id, teamName);
   };
 
   return (

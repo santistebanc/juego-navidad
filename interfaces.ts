@@ -1,35 +1,37 @@
-export interface Team {
-  name: string;
-  points: number;
-  players: string[];
+export interface AppProps {
+  players: Record<string, string>;
+  games: string[];
+  buzzes: Record<string, string[]>;
+  points: Record<string, number>;
+  page: "lobby" | string;
+  paused: boolean;
 }
 
-export type Message = UpdateMessage | ConnectionMessage | Buzz;
-
-export interface UpdateMessage {
-  type: 'update';
-  teams: Team[];
-  game?: Game;
-  buzzes?: string[];
-}
-
-export interface ConnectionMessage {
-  type: 'connect';
-  id: string;
-}
-
-export interface Buzz {
-  type: 'buzz';
-  id: string;
-}
-
-export interface Trivia {
-  type: 'trivia';
-  question: string;
-  points: 100;
-}
-
-export interface Game {
-  id: string;
-  data: Trivia;
-}
+export type ClientMessage =
+  | {
+      action: "assignTeam";
+      playerId: string;
+      teamName: string;
+    }
+  | {
+      action: "buzz";
+      playerId: string;
+      gameId: string;
+    }
+  | {
+      action: "goToPage";
+      page: string;
+    }
+  | {
+      action: "togglePause";
+      state?: boolean;
+    }
+  | {
+      action: "clearBuzzes";
+      gameId: string;
+    }
+  | {
+      action: "givePoints";
+      team: string;
+      points: number;
+    };

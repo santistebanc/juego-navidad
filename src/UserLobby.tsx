@@ -1,12 +1,8 @@
-import { Team } from '../interfaces';
-import { cn } from './lib/utils';
+import { useData } from "./DataContext";
+import { cn } from "./lib/utils";
 
-interface Props {
-  id?: string;
-  teams: Team[];
-}
-
-function UserLobby({ id, teams }: Props) {
+function UserLobby() {
+  const { id, players, teams } = useData();
 
   return (
     <div className="text-center selection:bg-green-900">
@@ -17,12 +13,12 @@ function UserLobby({ id, teams }: Props) {
         <ul>
           {teams.map((team) => (
             <li
-              className={cn('text-lg', {
-                'font-bold': id && team.players.includes(id),
+              className={cn("text-lg", {
+                "font-bold": players[id] === team,
               })}
-              key={team.name}
+              key={team}
             >
-              {team.name}
+              {team}
             </li>
           ))}
         </ul>
