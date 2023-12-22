@@ -1,11 +1,8 @@
-import { useState } from 'react';
-import { Team, Trivia } from '../interfaces';
-import AnimateText from '@moxy/react-animate-text';
-import { useTimeout } from 'usehooks-ts';
-import { cn } from './lib/utils';
-import { useAutoAnimate } from '@formkit/auto-animate/react';
-import { Button } from './components/ui/button';
-import PartySocket from 'partysocket';
+import { Team, Trivia } from "../interfaces";
+import { useAutoAnimate } from "@formkit/auto-animate/react";
+import { Button } from "./components/ui/button";
+import PartySocket from "partysocket";
+import Question from "./Question";
 
 interface Props {
   partySocket: PartySocket;
@@ -14,31 +11,26 @@ interface Props {
 }
 
 function TriviaQuestion({ partySocket, data, buzzes }: Props) {
-  const [timeIsUp, setTimeIsUp] = useState(false);
-  useTimeout(() => setTimeIsUp(true), 100);
   const [animationParent] = useAutoAnimate();
   const [animationParent2] = useAutoAnimate();
 
   const resetClick = () => {
     partySocket.send(
       JSON.stringify({
-        type: 'update',
+        type: "update",
         game: null,
-      }),
+      })
     );
   };
 
   return (
     <div className="text-center selection:bg-green-900">
       <header className="flex min-h-screen flex-col items-center justify-center bg-[#282c34] text-white">
-        <AnimateText
-          className={cn('text-3xl text-transparent', {
-            'text-amber-500': timeIsUp,
-          })}
-          wordDelay={0.2}
-        >
-          {data.question}
-        </AnimateText>
+        <Question
+          question={data.question}
+          questionTime={3000}
+          pause={!!buzzes.length}
+        />
         <div className="mt-16">
           {buzzes[0] && (
             <>
@@ -52,7 +44,7 @@ function TriviaQuestion({ partySocket, data, buzzes }: Props) {
               <ul className="text-right" ref={animationParent}>
                 {buzzes.slice(1).map((buzz) => (
                   <li
-                    className="text-lg font-medium text-blue-600"
+                    className="text-3xl font-medium text-blue-600"
                     key={buzz.name}
                   >
                     {buzz.name}
@@ -66,7 +58,7 @@ function TriviaQuestion({ partySocket, data, buzzes }: Props) {
           onClick={resetClick}
           variant="outline"
           className="mt-8 border-red-800 bg-transparent hover:bg-gray-800 hover:text-red-50"
-          style={{ position: 'absolute', bottom: '20px', right: '20px' }}
+          style={{ position: "absolute", bottom: "20px", right: "20px" }}
         >
           Reset
         </Button>
