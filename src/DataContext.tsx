@@ -8,6 +8,8 @@ import {
   useState,
 } from "react";
 import PartySocket from "partysocket";
+import Loading from "./Loading";
+import { s3host } from "../constants";
 
 // connect to our server
 const partySocket = new PartySocket({
@@ -48,6 +50,7 @@ const givePoints = (team: string, points: number) => {
 
 interface DataContextProps extends AppProps {
   id: string;
+  gamesList: Object;
   team: string;
   teams: string[];
   gameBuzzes: string[];
@@ -62,6 +65,8 @@ interface DataContextProps extends AppProps {
 const DataContext = createContext<DataContextProps>(null);
 
 export const DataProvider = ({ children }: PropsWithChildren<unknown>) => {
+  const [loading, setLoading] = useState(true);
+  const [gamesList, setGamesList] = useState();
   const [players, setPlayers] = useState<DataContextProps["players"]>({});
   const [games, setGames] = useState<DataContextProps["games"]>([]);
   const [buzzes, setBuzzes] = useState<DataContextProps["buzzes"]>({});
@@ -70,6 +75,10 @@ export const DataProvider = ({ children }: PropsWithChildren<unknown>) => {
   const [paused, setPaused] = useState<DataContextProps["paused"]>(false);
 
   useEffect(() => {
+    fetch(s3host + "games.json")
+      .then((res) => res.json())
+      .then((obj) => setGamesList(obj));
+
     const listener = (e: MessageEvent) => {
       const message: AppProps = JSON.parse(e.data);
       setPlayers(message.players);
@@ -78,6 +87,7 @@ export const DataProvider = ({ children }: PropsWithChildren<unknown>) => {
       setPoints(message.points);
       setPage(message.page);
       setPaused(message.paused);
+      setLoading(false);
     };
 
     partySocket.addEventListener("message", listener);
@@ -96,10 +106,13 @@ export const DataProvider = ({ children }: PropsWithChildren<unknown>) => {
     [teams, points]
   );
 
+  if (loading || !gamesList) return <Loading />;
+
   return (
     <DataContext.Provider
       value={{
         id: partySocket.id,
+        gamesList,
         team,
         teams,
         players,

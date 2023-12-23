@@ -1,18 +1,18 @@
 import { useAutoAnimate } from "@formkit/auto-animate/react";
 import Question from "./Question";
 import { useData } from "./DataContext";
-import { games } from "../games";
+import { useMemo } from "react";
 
 function TriviaQuestion() {
-  const { page, paused, gameBuzzes } = useData();
+  const { page, paused, gameBuzzes, gamesList } = useData();
   const [animationParent] = useAutoAnimate();
   const [animationParent2] = useAutoAnimate();
 
-  const question = games[page]?.question;
+  const game = useMemo(() => gamesList[page], [gamesList, page]);
 
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-[#282c34] text-center text-white">
-      <Question key={question} question={question} pause={paused} />
+      <Question key={page} id={page} question={game.question} pause={paused} />
       <div className="mt-16">
         {gameBuzzes?.[0] && (
           <>

@@ -21,8 +21,8 @@ function TriviaUserQuestion() {
         className={cn(
           "flex min-h-screen flex-col items-center justify-center bg-[#282c34] text-white",
           {
-            "bg-yellow-500": buzzStatus === "first",
             "bg-red-800": buzzStatus === "late",
+            "bg-yellow-500": buzzStatus === "first",
           }
         )}
       >

@@ -1,4 +1,3 @@
-import { games } from "../games";
 import { useData } from "./DataContext";
 import GamesTable from "./GamesTable";
 import { Button } from "./components/ui/button";
@@ -14,10 +13,11 @@ function Admin() {
     paused,
     gameBuzzes,
     givePoints,
+    gamesList,
   } = useData();
 
   const startClick = () => {
-    goToPage(page === "lobby" ? Object.keys(games)[0] : "lobby");
+    goToPage(page === "lobby" ? Object.keys(gamesList)[0] : "lobby");
   };
 
   const resetClick = () => {
@@ -33,7 +33,7 @@ function Admin() {
     givePoints(team, points);
   };
 
-  const game = games[page];
+  const game = gamesList[page];
 
   return (
     <div className="text-center selection:bg-green-900">
@@ -61,7 +61,10 @@ function Admin() {
         <div className="flex flex-col gap-4">
           {game &&
             gameBuzzes.map((buzz, i) => (
-              <div className="grid auto-cols-auto grid-flow-col items-center gap-2">
+              <div
+                key={buzz}
+                className="grid auto-cols-auto grid-flow-col items-center gap-2"
+              >
                 <Badge
                   className={cn("border-yellow-500 font-bold text-yellow-600", {
                     "border-red-500 text-red-600": i > 0,

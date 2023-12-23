@@ -1,16 +1,24 @@
 import type * as Party from "partykit/server";
 import { ClientMessage } from "../interfaces";
-import { games as gamesList } from "../games";
+import { s3host } from "../constants";
 
 export default class WebSocketServer implements Party.Server {
   constructor(readonly party: Party.Party) {}
 
   players: Record<string, string> = {};
-  games: string[] = Object.keys(gamesList);
+  games: string[];
   buzzes: Record<string, string[]> = {};
   points: Record<string, number> = {};
   page: "lobby" | string = "lobby";
   paused: boolean = false;
+
+  onStart() {
+    fetch(s3host + "games.json")
+      .then((res) => res.json())
+      .then((obj) => {
+        this.games = Object.keys(obj);
+      });
+  }
 
   onMessage(message: string) {
     const data = JSON.parse(message) as ClientMessage;

@@ -6,14 +6,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { games as gamesList } from "../games";
 import { useData } from "./DataContext";
 import { cn } from "./lib/utils";
 import { Button } from "./components/ui/button";
 import { Badge } from "./components/ui/badge";
 
 function GamesTable() {
-  const { games, buzzes, page, goToPage } = useData();
+  const { games, buzzes, page, goToPage, gamesList } = useData();
   const list = games.map((id) => ({ id, ...gamesList[id] }));
 
   const handleClickGo = (id: string) => () => {

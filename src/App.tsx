@@ -4,7 +4,6 @@ import UserLobby from "./UserLobby";
 import TriviaQuestion from "./TriviaQuestion";
 import TriviaUserQuestion from "./TriviaUserQuestion";
 import { DataProvider, useData } from "./DataContext";
-import { games } from "../games";
 import Admin from "./Admin";
 import { PropsWithChildren } from "react";
 import TeamsList from "./TeamsList";
@@ -19,14 +18,14 @@ const Layout = ({ children }: PropsWithChildren<unknown>) => (
 );
 
 const Board = () => {
-  const { page } = useData();
+  const { page, gamesList } = useData();
   if (page === "lobby")
     return (
       <Layout>
         <Lobby />
       </Layout>
     );
-  if (games[page].type === "trivia")
+  if (gamesList[page]?.type === "trivia")
     return (
       <Layout>
         <TriviaQuestion />
@@ -35,10 +34,10 @@ const Board = () => {
 };
 
 const User = () => {
-  const { players, id, page } = useData();
+  const { players, id, page, gamesList } = useData();
   if (!players[id]) return <Register />;
   if (page === "lobby") return <UserLobby />;
-  if (games[page].type === "trivia") return <TriviaUserQuestion />;
+  if (gamesList[page].type === "trivia") return <TriviaUserQuestion />;
 };
 
 const App = () => {
