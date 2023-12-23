@@ -3,11 +3,12 @@ import GamesTable from "./GamesTable";
 import { Button } from "./components/ui/button";
 import { Badge } from "./components/ui/badge";
 import { cn } from "./lib/utils";
+import ManualPoints from "./ManualPoints";
 
 function Admin() {
   const {
     goToPage,
-    clearBuzzes,
+    resetGame,
     page,
     togglePause,
     paused,
@@ -15,15 +16,21 @@ function Admin() {
     givePoints,
     gamesList,
     triggerEffect,
+    giveAnswer,
+    games,
+    teams,
   } = useData();
+
+  const game = gamesList[page];
+
+  const otherTeams = teams.filter((t) => !gameBuzzes.includes(t));
 
   const startClick = () => {
     goToPage(page === "lobby" ? Object.keys(gamesList)[0] : "lobby");
   };
 
   const resetClick = () => {
-    clearBuzzes(page);
-    goToPage("lobby");
+    resetGame(page);
   };
 
   const pauseClick = () => {
@@ -46,7 +53,21 @@ function Admin() {
     triggerEffect("timer");
   };
 
-  const game = gamesList[page];
+  const nextClick = () => {
+    goToPage(games[Math.min(games.length - 1, games.indexOf(page) + 1)]);
+  };
+
+  const clickCorrectAnswer = (team: string) => () => {
+    triggerEffect("correct");
+    giveAnswer(page, team, 1);
+    givePoints(team, game.points);
+  };
+
+  const clickWrongAnswer = (team: string) => () => {
+    triggerEffect("wrong");
+    giveAnswer(page, team, -1);
+    givePoints(team, -game.points);
+  };
 
   return (
     <div className="text-center selection:bg-green-900">
@@ -56,6 +77,13 @@ function Admin() {
           <Button onClick={startClick} className="bg-red-800 hover:bg-red-900">
             {page === "lobby" ? "Start" : "Go to Lobby"}
           </Button>
+          <Button
+            onClick={resetClick}
+            className="bg-amber-700 hover:bg-amber-800"
+          >
+            reset
+          </Button>
+          <Button onClick={nextClick}>Next</Button>
           <Button
             onClick={pauseClick}
             variant="outline"
@@ -102,21 +130,31 @@ function Admin() {
                 </Badge>
                 <div className="px-3">{buzz}</div>
                 <Button
-                  onClick={awardPoints(buzz, game.points)}
+                  onClick={clickCorrectAnswer(buzz)}
                   variant="outline"
                   className="h-auto border-gray-200 bg-transparent p-1 hover:bg-gray-600 hover:text-blue-50"
                 >
-                  {`+ ${game.points}`}
+                  {`Correct + ${game.points}`}
                 </Button>
                 <Button
-                  onClick={awardPoints(buzz, -game.points)}
+                  onClick={clickWrongAnswer(buzz)}
                   variant="outline"
                   className="h-auto border-red-800 bg-transparent p-1 hover:bg-red-900 hover:text-blue-50"
                 >
-                  {`- ${game.points}`}
+                  {`Wrong - ${game.points}`}
                 </Button>
+                <ManualPoints team={buzz} />
               </div>
             ))}
+          {otherTeams.map((team) => (
+            <div
+              key={team}
+              className="grid auto-cols-auto grid-flow-col items-center gap-2"
+            >
+              <div className="px-3">{team}</div>
+              <ManualPoints team={team} />
+            </div>
+          ))}
         </div>
       </header>
     </div>

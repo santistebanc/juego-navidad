@@ -48,8 +48,16 @@ const givePoints = (team: string, points: number) => {
   send({ action: "givePoints", team, points });
 };
 
-const triggerEffect = (effect: GameEffect) => {
-  send({ action: "triggerEffect", effect });
+const triggerEffect = (effectName: GameEffect) => {
+  send({ action: "triggerEffect", effectName });
+};
+
+const giveAnswer = (gameId: string, team: string, answer: number) => {
+  send({ action: "giveAnswer", gameId, team, answer });
+};
+
+const resetGame = (gameId: string) => {
+  send({ action: "resetGame", gameId });
 };
 
 interface DataContextProps extends AppProps {
@@ -65,6 +73,8 @@ interface DataContextProps extends AppProps {
   clearBuzzes: typeof clearBuzzes;
   givePoints: typeof givePoints;
   triggerEffect: typeof triggerEffect;
+  giveAnswer: typeof giveAnswer;
+  resetGame: typeof resetGame;
 }
 
 const DataContext = createContext<DataContextProps>(null);
@@ -78,6 +88,8 @@ export const DataProvider = ({ children }: PropsWithChildren<unknown>) => {
   const [points, setPoints] = useState<DataContextProps["points"]>({});
   const [page, setPage] = useState<DataContextProps["page"]>("lobby");
   const [paused, setPaused] = useState<DataContextProps["paused"]>(false);
+  const [reset, setReset] = useState<DataContextProps["reset"]>(false);
+  const [answers, setAnswers] = useState<DataContextProps["answers"]>({});
   const [gameEffect, setGameEffect] =
     useState<DataContextProps["gameEffect"]>("none");
 
@@ -94,7 +106,9 @@ export const DataProvider = ({ children }: PropsWithChildren<unknown>) => {
       setPoints(message.points);
       setPage(message.page);
       setPaused(message.paused);
+      setReset(message.reset);
       setGameEffect(message.gameEffect);
+      setAnswers(message.answers);
       setLoading(false);
     };
 
@@ -130,7 +144,9 @@ export const DataProvider = ({ children }: PropsWithChildren<unknown>) => {
         points: pointsPerTeam,
         page,
         paused,
+        reset,
         gameEffect,
+        answers,
         assignTeam,
         buzz,
         togglePause,
@@ -138,6 +154,8 @@ export const DataProvider = ({ children }: PropsWithChildren<unknown>) => {
         clearBuzzes,
         givePoints,
         triggerEffect,
+        giveAnswer,
+        resetGame,
       }}
     >
       {children}

@@ -12,6 +12,8 @@ export default class WebSocketServer implements Party.Server {
   page: "lobby" | string = "lobby";
   paused: boolean = false;
   gameEffect: GameEffect = "none";
+  answers: Record<string, Record<string, number>> = {};
+  reset: boolean = false;
 
   onStart() {
     fetch(s3host + "games.json")
@@ -45,7 +47,17 @@ export default class WebSocketServer implements Party.Server {
       }
       this.points[data.team] += data.points;
     } else if (data.action === "triggerEffect") {
-      this.gameEffect = data.effect;
+      this.gameEffect = data.effectName;
+    } else if (data.action === "giveAnswer") {
+      if (!this.answers[data.gameId]) {
+        this.answers[data.gameId] = { [data.team]: data.answer };
+      } else {
+        this.answers[data.gameId][data.team] = data.answer;
+      }
+    } else if (data.action === "resetGame") {
+      delete this.answers[data.gameId];
+      delete this.buzzes[data.gameId];
+      this.reset = true;
     }
     this.update();
   }
@@ -68,6 +80,8 @@ export default class WebSocketServer implements Party.Server {
       page: this.page,
       paused: this.paused,
       gameEffect: this.gameEffect,
+      answers: this.answers,
+      reset: this.reset,
     });
 
     this.party.broadcast(
@@ -79,7 +93,11 @@ export default class WebSocketServer implements Party.Server {
         page: this.page,
         paused: this.paused,
         gameEffect: this.gameEffect,
+        answers: this.answers,
+        reset: this.reset,
       })
     );
+
+    this.reset = false;
   }
 }

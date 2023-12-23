@@ -13,11 +13,10 @@ interface Props {
   id: string;
   question: string;
   image?: string;
-  pause?: boolean;
 }
 
-function Question({ question, pause, id, image }: Props) {
-  const { togglePause } = useData();
+function Question({ question, id, image }: Props) {
+  const { togglePause, reset, paused } = useData();
   const {
     load,
     play: playAudio,
@@ -29,15 +28,31 @@ function Question({ question, pause, id, image }: Props) {
     src,
   } = useGlobalAudioPlayer();
 
+  const questionTime = duration * 1000 - 1400;
+
+  const [count, { startCountdown, stopCountdown, resetCountdown }] =
+    useCountdown({
+      countStart: 0,
+      intervalMs: 10,
+      countStop: Math.floor(questionTime / 10),
+      isIncrement: true,
+    });
+
+  const finished = count >= Math.floor(questionTime / 10);
+
   useEffect(() => {
-    if (pause) {
+    if (reset) {
+      stopAudio();
+      resetCountdown();
+    }
+    if (paused) {
       stopCountdown();
       pauseAudio();
     } else if (duration && !finished) {
       startCountdown();
       playAudio();
     }
-  }, [pause, isLoading, duration]);
+  }, [paused, duration, reset, finished]);
 
   useEffect(() => {
     const url = resouceURL(id, ".mp3");
@@ -48,17 +63,6 @@ function Question({ question, pause, id, image }: Props) {
       stopAudio();
     };
   }, [src]);
-
-  const questionTime = duration * 1000 - 1400;
-
-  const [count, { startCountdown, stopCountdown }] = useCountdown({
-    countStart: 0,
-    intervalMs: 10,
-    countStop: Math.floor(questionTime / 10),
-    isIncrement: true,
-  });
-
-  const finished = count >= Math.floor(questionTime / 10);
 
   const words = question.split(" ");
   const timePerWord = questionTime / words.length;

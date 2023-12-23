@@ -6,6 +6,8 @@ export interface AppProps {
   page: "lobby" | string;
   paused: boolean;
   gameEffect: GameEffect;
+  answers: Record<string, Record<string, number>>;
+  reset: boolean;
 }
 
 export type ClientMessage =
@@ -38,7 +40,17 @@ export type ClientMessage =
     }
   | {
       action: "triggerEffect";
-      effect: GameEffect;
+      effectName: GameEffect;
+    }
+  | {
+      action: "giveAnswer";
+      gameId: string;
+      team: string;
+      answer: number;
+    }
+  | {
+      action: "resetGame";
+      gameId: string;
     };
 
 export type GameEffect = "none" | "correct" | "wrong" | "timer";

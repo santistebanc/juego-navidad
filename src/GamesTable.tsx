@@ -12,7 +12,7 @@ import { Button } from "./components/ui/button";
 import { Badge } from "./components/ui/badge";
 
 function GamesTable() {
-  const { games, buzzes, page, goToPage, gamesList, clearBuzzes } = useData();
+  const { games, buzzes, page, goToPage, gamesList, resetGame } = useData();
   const list = games.map((id) => ({ id, ...gamesList[id] }));
 
   const handleClickGo = (id: string) => () => {
@@ -20,7 +20,7 @@ function GamesTable() {
   };
 
   const resetClick = (id: string) => () => {
-    clearBuzzes(id);
+    resetGame(id);
   };
 
   return (
@@ -60,14 +60,16 @@ function GamesTable() {
                 </Badge>
               ))}
             </TableCell>
-            <TableCell className="flex gap-1 text-right">
-              <Button onClick={handleClickGo(id)}>go</Button>
-              <Button
-                onClick={resetClick(id)}
-                className="bg-amber-700 hover:bg-amber-800"
-              >
-                reset
-              </Button>
+            <TableCell>
+              <div className="flex gap-1 text-right">
+                <Button onClick={handleClickGo(id)}>go</Button>
+                <Button
+                  onClick={resetClick(id)}
+                  className="bg-amber-700 hover:bg-amber-800"
+                >
+                  reset
+                </Button>
+              </div>
             </TableCell>
           </TableRow>
         ))}

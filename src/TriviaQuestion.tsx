@@ -4,7 +4,7 @@ import { useData } from "./DataContext";
 import { useMemo } from "react";
 
 function TriviaQuestion() {
-  const { page, paused, gamesList } = useData();
+  const { page, gamesList } = useData();
 
   const game = useMemo(() => gamesList[page], [gamesList, page]);
 
@@ -15,7 +15,6 @@ function TriviaQuestion() {
         id={page}
         question={game.question}
         image={game.image}
-        pause={paused}
       />
     </div>
   );
