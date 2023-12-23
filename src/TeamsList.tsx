@@ -1,5 +1,6 @@
 import { useData } from "./DataContext";
 import { useAutoAnimate } from "@formkit/auto-animate/react";
+import SlotCounter from "react-slot-counter";
 
 function TeamsList() {
   const { teams, points } = useData();
@@ -16,7 +17,7 @@ function TeamsList() {
             key={team + " points"}
             className="text-right text-2xl font-bold text-white"
           >
-            {points[team]}
+            <SlotCounter value={points[team]} />
           </span>,
         ])}
       </div>

@@ -1,5 +1,5 @@
 import type * as Party from "partykit/server";
-import { ClientMessage } from "../interfaces";
+import { ClientMessage, GameEffect } from "../interfaces";
 import { s3host } from "../constants";
 
 export default class WebSocketServer implements Party.Server {
@@ -11,6 +11,7 @@ export default class WebSocketServer implements Party.Server {
   points: Record<string, number> = {};
   page: "lobby" | string = "lobby";
   paused: boolean = false;
+  gameEffect: GameEffect = "none";
 
   onStart() {
     fetch(s3host + "games.json")
@@ -43,6 +44,8 @@ export default class WebSocketServer implements Party.Server {
         this.points[data.team] = 0;
       }
       this.points[data.team] += data.points;
+    } else if (data.action === "triggerEffect") {
+      this.gameEffect = data.effect;
     }
     this.update();
   }
@@ -64,6 +67,7 @@ export default class WebSocketServer implements Party.Server {
       points: this.points,
       page: this.page,
       paused: this.paused,
+      gameEffect: this.gameEffect,
     });
 
     this.party.broadcast(
@@ -74,6 +78,7 @@ export default class WebSocketServer implements Party.Server {
         points: this.points,
         page: this.page,
         paused: this.paused,
+        gameEffect: this.gameEffect,
       })
     );
   }

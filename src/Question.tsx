@@ -6,15 +6,17 @@ import { useData } from "./DataContext";
 import Loading from "./Loading";
 import { s3host } from "../constants";
 
-const audioURL = (id) => s3host + id + ".mp3";
+const resouceURL = (id: string, postfix?: string) =>
+  s3host + id + (postfix ?? "");
 
 interface Props {
   id: string;
   question: string;
+  image?: string;
   pause?: boolean;
 }
 
-function Question({ question, pause, id }: Props) {
+function Question({ question, pause, id, image }: Props) {
   const { togglePause } = useData();
   const {
     load,
@@ -38,7 +40,7 @@ function Question({ question, pause, id }: Props) {
   }, [pause, isLoading, duration]);
 
   useEffect(() => {
-    const url = audioURL(id);
+    const url = resouceURL(id, ".mp3");
     if (src !== url) {
       load(url);
     }
@@ -47,7 +49,7 @@ function Question({ question, pause, id }: Props) {
     };
   }, [src]);
 
-  const questionTime = duration * 1000 - 700;
+  const questionTime = duration * 1000 - 1400;
 
   const [count, { startCountdown, stopCountdown }] = useCountdown({
     countStart: 0,
@@ -70,17 +72,30 @@ function Question({ question, pause, id }: Props) {
   if (isLoading || !duration) return <Loading />;
 
   return (
-    <div className="max-w-screen-md">
-      {words.map((word, i) => (
-        <span
-          key={word}
-          className={cn("text-3xl text-transparent transition duration-700", {
-            "text-amber-500": count * 10 > timePerWord * i,
-          })}
-        >
-          {word}{" "}
-        </span>
-      ))}
+    <div className="m-5 flex max-h-screen max-w-screen-md flex-col items-center justify-center">
+      <div>
+        {words.map((word, i) => (
+          <span
+            key={word}
+            className={cn("text-3xl text-transparent transition duration-700", {
+              "text-amber-500": count * 10 > timePerWord * i,
+            })}
+          >
+            {word}{" "}
+          </span>
+        ))}
+      </div>
+      {image && (
+        <img
+          src={resouceURL(image)}
+          className={cn(
+            "mt-5 max-w-lg opacity-0 transition-opacity duration-700 ease-in",
+            {
+              "opacity-100": finished,
+            }
+          )}
+        />
+      )}
     </div>
   );
 }

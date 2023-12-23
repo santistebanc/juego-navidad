@@ -14,6 +14,7 @@ function Admin() {
     gameBuzzes,
     givePoints,
     gamesList,
+    triggerEffect,
   } = useData();
 
   const startClick = () => {
@@ -33,6 +34,18 @@ function Admin() {
     givePoints(team, points);
   };
 
+  const correctClick = () => {
+    triggerEffect("correct");
+  };
+
+  const wrongClick = () => {
+    triggerEffect("wrong");
+  };
+
+  const timeClick = () => {
+    triggerEffect("timer");
+  };
+
   const game = gamesList[page];
 
   return (
@@ -44,18 +57,32 @@ function Admin() {
             {page === "lobby" ? "Start" : "Go to Lobby"}
           </Button>
           <Button
-            onClick={resetClick}
-            variant="outline"
-            className="border-red-800 bg-transparent hover:bg-gray-800 hover:text-red-50"
-          >
-            Reset
-          </Button>
-          <Button
             onClick={pauseClick}
             variant="outline"
             className="border-blue-800 bg-transparent hover:bg-gray-800 hover:text-blue-50"
           >
             {paused ? "▶" : "▐▐"}
+          </Button>
+          <Button
+            onClick={wrongClick}
+            variant="outline"
+            className="border-red-800 bg-transparent hover:bg-red-800 hover:text-blue-50"
+          >
+            ❌
+          </Button>
+          <Button
+            onClick={correctClick}
+            variant="outline"
+            className="border-green-800 bg-transparent text-green-500 hover:bg-green-800 hover:text-blue-50"
+          >
+            ✔
+          </Button>
+          <Button
+            onClick={timeClick}
+            variant="outline"
+            className="border-violet-700 bg-transparent text-violet-600 hover:bg-violet-800 hover:text-blue-50"
+          >
+            ⏱
           </Button>
         </div>
         <div className="flex flex-col gap-4">

@@ -5,6 +5,7 @@ export interface AppProps {
   points: Record<string, number>;
   page: "lobby" | string;
   paused: boolean;
+  gameEffect: GameEffect;
 }
 
 export type ClientMessage =
@@ -34,4 +35,10 @@ export type ClientMessage =
       action: "givePoints";
       team: string;
       points: number;
+    }
+  | {
+      action: "triggerEffect";
+      effect: GameEffect;
     };
+
+export type GameEffect = "none" | "correct" | "wrong" | "timer";

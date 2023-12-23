@@ -1,4 +1,4 @@
-import { AppProps, ClientMessage } from "interfaces";
+import { AppProps, ClientMessage, GameEffect } from "interfaces";
 import {
   PropsWithChildren,
   createContext,
@@ -48,6 +48,10 @@ const givePoints = (team: string, points: number) => {
   send({ action: "givePoints", team, points });
 };
 
+const triggerEffect = (effect: GameEffect) => {
+  send({ action: "triggerEffect", effect });
+};
+
 interface DataContextProps extends AppProps {
   id: string;
   gamesList: Object;
@@ -60,6 +64,7 @@ interface DataContextProps extends AppProps {
   togglePause: typeof togglePause;
   clearBuzzes: typeof clearBuzzes;
   givePoints: typeof givePoints;
+  triggerEffect: typeof triggerEffect;
 }
 
 const DataContext = createContext<DataContextProps>(null);
@@ -73,6 +78,8 @@ export const DataProvider = ({ children }: PropsWithChildren<unknown>) => {
   const [points, setPoints] = useState<DataContextProps["points"]>({});
   const [page, setPage] = useState<DataContextProps["page"]>("lobby");
   const [paused, setPaused] = useState<DataContextProps["paused"]>(false);
+  const [gameEffect, setGameEffect] =
+    useState<DataContextProps["gameEffect"]>("none");
 
   useEffect(() => {
     fetch(s3host + "games.json")
@@ -87,6 +94,7 @@ export const DataProvider = ({ children }: PropsWithChildren<unknown>) => {
       setPoints(message.points);
       setPage(message.page);
       setPaused(message.paused);
+      setGameEffect(message.gameEffect);
       setLoading(false);
     };
 
@@ -122,12 +130,14 @@ export const DataProvider = ({ children }: PropsWithChildren<unknown>) => {
         points: pointsPerTeam,
         page,
         paused,
+        gameEffect,
         assignTeam,
         buzz,
         togglePause,
         goToPage,
         clearBuzzes,
         givePoints,
+        triggerEffect,
       }}
     >
       {children}

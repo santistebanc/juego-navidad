@@ -12,17 +12,21 @@ import { Button } from "./components/ui/button";
 import { Badge } from "./components/ui/badge";
 
 function GamesTable() {
-  const { games, buzzes, page, goToPage, gamesList } = useData();
+  const { games, buzzes, page, goToPage, gamesList, clearBuzzes } = useData();
   const list = games.map((id) => ({ id, ...gamesList[id] }));
 
   const handleClickGo = (id: string) => () => {
     goToPage(id);
   };
 
+  const resetClick = (id: string) => () => {
+    clearBuzzes(id);
+  };
+
   return (
     <Table>
       <TableHeader>
-        <TableRow>
+        <TableRow className="hover:bg-transparent">
           <TableHead>id</TableHead>
           <TableHead>type</TableHead>
           <TableHead>question</TableHead>
@@ -34,7 +38,12 @@ function GamesTable() {
       </TableHeader>
       <TableBody>
         {list.map(({ id, question, answer, type, points }) => (
-          <TableRow key={id} className={cn({ "bg-teal-900": page === id })}>
+          <TableRow
+            key={id}
+            className={cn("hover:bg-slate-700", {
+              "bg-teal-900 hover:bg-teal-800": page === id,
+            })}
+          >
             <TableCell className="font-medium">{id}</TableCell>
             <TableCell>{type}</TableCell>
             <TableCell>{question}</TableCell>
@@ -51,8 +60,14 @@ function GamesTable() {
                 </Badge>
               ))}
             </TableCell>
-            <TableCell className="text-right">
+            <TableCell className="flex gap-1 text-right">
               <Button onClick={handleClickGo(id)}>go</Button>
+              <Button
+                onClick={resetClick(id)}
+                className="bg-amber-700 hover:bg-amber-800"
+              >
+                reset
+              </Button>
             </TableCell>
           </TableRow>
         ))}

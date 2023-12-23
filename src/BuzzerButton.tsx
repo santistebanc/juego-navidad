@@ -11,7 +11,7 @@ function BuzzerButton({ onClick }: Props) {
   duration-150 [box-shadow:0_30px_0_0_#155ed4,0_40px_0_0_#1b70f841] active:translate-y-8
   active:border-b-[0px] active:[box-shadow:0_0px_0_0_#1b6ff8,0_0px_0_0_#1b70f841]
 "
-      style={{ width: "70dvw", height: "70dvw" }}
+      style={{ width: "70dvmin", height: "70dvmin" }}
       onClick={onClick}
     >
       <svg height="100%" viewBox="0 0 512 512" width="100%" fill="#134fb0">
