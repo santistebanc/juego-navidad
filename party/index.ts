@@ -1,6 +1,6 @@
 import type * as Party from "partykit/server";
 import { ClientMessage, GameEffect } from "../interfaces";
-import { resouceURL } from "../constants";
+import { localQuestions, resouceURL } from "../constants";
 
 export default class WebSocketServer implements Party.Server {
   constructor(readonly party: Party.Party) {}
@@ -9,16 +9,17 @@ export default class WebSocketServer implements Party.Server {
   games: string[];
   buzzes: Record<string, string[]> = {};
   points: Record<string, number> = {};
-  page: "lobby" | string = "lobby";
+  page: "lobby" | "fastRound" | "finish" | string = "lobby";
   paused: boolean = false;
   gameEffect: GameEffect = "none";
   answers: Record<string, Record<string, number>> = {};
+  fastRoundTurn: string;
 
   onStart() {
     fetch(resouceURL("games", ".json"))
       .then((res) => res.json())
       .then((obj) => {
-        this.games = Object.keys(obj);
+        this.games = Object.keys({ ...obj, ...localQuestions });
         this.games.sort((a, b) => 0.5 - Math.random());
       });
   }
@@ -35,6 +36,7 @@ export default class WebSocketServer implements Party.Server {
       }
     } else if (data.action === "assignTeam") {
       this.players[data.playerId] = data.teamName;
+      this.fastRoundTurn = data.teamName;
     } else if (data.action === "goToPage") {
       this.page = data.page;
     } else if (data.action === "togglePause") {
@@ -87,6 +89,7 @@ export default class WebSocketServer implements Party.Server {
       paused: this.paused,
       gameEffect: this.gameEffect,
       answers: this.answers,
+      fastRoundTurn: this.fastRoundTurn,
     });
 
     this.party.broadcast(
@@ -99,6 +102,7 @@ export default class WebSocketServer implements Party.Server {
         paused: this.paused,
         gameEffect: this.gameEffect,
         answers: this.answers,
+        fastRoundTurn: this.fastRoundTurn,
       })
     );
   }

@@ -3,10 +3,11 @@ export interface AppProps {
   games: string[];
   buzzes: Record<string, string[]>;
   points: Record<string, number>;
-  page: "lobby" | string;
+  page: "lobby" | "fastRound" | "finish" | string;
   paused: boolean;
   gameEffect: GameEffect;
   answers: Record<string, Record<string, number>>;
+  fastRoundTurn: string;
 }
 
 export type ClientMessage =
@@ -51,6 +52,9 @@ export type ClientMessage =
   | {
       action: "resetGame";
       gameId: string;
+    }
+  | {
+      action: "fastRoundNext";
     };
 
 export type GameEffect = "none" | "correct" | "wrong" | "timer";

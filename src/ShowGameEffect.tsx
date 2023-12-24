@@ -9,6 +9,7 @@ import { CountdownCircleTimer } from "react-countdown-circle-timer";
 import { useAudioPlayer } from "react-use-audio-player";
 import correctSound from "./assets/sounds/correct.wav";
 import wrongSound from "./assets/sounds/incorrect.mp3";
+import timer5 from "./assets/sounds/Timer5.mp3";
 
 const ShowGameEffect = () => {
   const { gameEffect, triggerEffect } = useData();
@@ -29,6 +30,9 @@ const ShowGameEffect = () => {
         playAudio();
       } else if (gameEffect === "wrong") {
         load(wrongSound);
+        playAudio();
+      } else if (gameEffect === "timer") {
+        load(timer5);
         playAudio();
       }
     }

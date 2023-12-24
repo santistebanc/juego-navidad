@@ -4,6 +4,7 @@ import { Button } from "./components/ui/button";
 import { Badge } from "./components/ui/badge";
 import { cn } from "./lib/utils";
 import ManualPoints from "./ManualPoints";
+import { Table, TableBody, TableCell, TableRow } from "./components/ui/table";
 
 function Admin() {
   const {
@@ -18,14 +19,24 @@ function Admin() {
     giveAnswer,
     games,
     teams,
+    fastRoundTurn,
   } = useData();
 
   const game = gamesList[page];
 
-  const otherTeams = teams.filter((t) => !gameBuzzes.includes(t));
+  const isFastRound = false;
+
+  const otherTeams = teams.filter(
+    (t) => !gameBuzzes.includes(t) && fastRoundTurn !== t
+  );
 
   const startClick = () => {
-    goToPage(page === "lobby" ? games[0] : "lobby");
+    const normalGames = games.filter((g) => gamesList[g].type !== "flash");
+    if (page === "lobby") {
+      goToPage("lobby");
+    } else {
+      goToPage(normalGames[0]);
+    }
   };
 
   const resetClick = () => {
@@ -49,7 +60,23 @@ function Admin() {
   };
 
   const nextClick = () => {
-    goToPage(games[Math.min(games.length - 1, games.indexOf(page) + 1)]);
+    const fastRoundGames = games.filter((g) => gamesList[g].type === "flash");
+    const normalGames = games.filter((g) => gamesList[g].type !== "flash");
+    if (isFastRound) {
+      const idx = fastRoundGames.indexOf(page) + 1;
+      if (idx >= fastRoundGames.length) {
+        goToPage("finish");
+      } else {
+        goToPage(fastRoundGames[fastRoundGames.indexOf(page) + 1]);
+      }
+    } else {
+      const idx = normalGames.indexOf(page) + 1;
+      if (idx >= normalGames.length) {
+        goToPage("fastRound");
+      } else {
+        goToPage(normalGames[idx]);
+      }
+    }
   };
 
   const clickCorrectAnswer = (team: string) => () => {
@@ -57,7 +84,20 @@ function Admin() {
   };
 
   const clickWrongAnswer = (team: string) => () => {
-    giveAnswer(page, team, -1, -Math.round(game.points / 2));
+    giveAnswer(page, team, -1, isFastRound ? 0 : -Math.round(game.points / 2));
+  };
+
+  const clickFastRound = () => {
+    if (page === "fastRound") {
+      const fastRoundGames = games.filter((g) => gamesList[g].type === "flash");
+      goToPage(fastRoundGames[0]);
+    } else {
+      goToPage("fastRound");
+    }
+  };
+
+  const clickFinish = () => {
+    goToPage("finish");
   };
 
   return (
@@ -74,7 +114,7 @@ function Admin() {
           >
             reset
           </Button>
-          <Button onClick={nextClick}>Next</Button>
+          {page !== "fastRound" && <Button onClick={nextClick}>Next</Button>}
           <Button
             onClick={pauseClick}
             variant="outline"
@@ -103,8 +143,40 @@ function Admin() {
           >
             ⏱
           </Button>
+          <Button
+            onClick={clickFastRound}
+            className="bg-emerald-800 hover:bg-emerald-900"
+          >
+            {page === "fastRound" ? "Start" : "Fast-Round"}
+          </Button>
+          <Button
+            onClick={clickFinish}
+            className="bg-violet-500 hover:bg-violet-600"
+          >
+            Finish
+          </Button>
         </div>
         <div className="flex flex-col gap-4">
+          {isFastRound && (
+            <div className="grid auto-cols-auto grid-flow-col items-center gap-2">
+              <div className="px-3">{fastRoundTurn}</div>
+              <Button
+                onClick={clickCorrectAnswer(fastRoundTurn)}
+                variant="outline"
+                className="h-auto border-gray-200 bg-transparent p-1 hover:bg-gray-600 hover:text-blue-50"
+              >
+                {`Correct + ${game.points}`}
+              </Button>
+              <Button
+                onClick={clickWrongAnswer(fastRoundTurn)}
+                variant="outline"
+                className="h-auto border-red-800 bg-transparent p-1 hover:bg-red-900 hover:text-blue-50"
+              >
+                {`Wrong`}
+              </Button>
+              <ManualPoints team={fastRoundTurn} />
+            </div>
+          )}
           {game &&
             gameBuzzes.map((buzz, i) => (
               <div

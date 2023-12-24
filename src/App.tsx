@@ -10,10 +10,14 @@ import TeamsList from "./TeamsList";
 import ShowGameEffect from "./ShowGameEffect";
 import GameBuzzes from "./GameBuzzes";
 import MusicQuestion from "./MusicQuestion";
+import FastRound from "./FastRound";
+import UserFastRound from "./UserFastRound";
+import FastRoundLobby from "./FastRoundLobby";
+import FinishLobby from "./FinishLobby";
 
 const Layout = ({ children }: PropsWithChildren<unknown>) => (
   <div className="relative flex min-h-screen items-center justify-center bg-[#282c34]">
-    <div>
+    <div className="flex min-h-screen flex-col p-10">
       <TeamsList />
     </div>
     <div className="flex-1">{children}</div>
@@ -30,7 +34,30 @@ const Board = () => {
         <Lobby />
       </Layout>
     );
-  if (gamesList[page]?.type === "trivia")
+
+  if (page === "fastRound")
+    return (
+      <Layout>
+        <FastRoundLobby />
+      </Layout>
+    );
+
+  if (page === "finish")
+    return (
+      <Layout>
+        <FinishLobby />
+      </Layout>
+    );
+
+  // if (gamesList[page]?.type === "flash") {
+  //   return (
+  //     <Layout>
+  //       <FastRound />
+  //     </Layout>
+  //   );
+  // }
+
+  if (gamesList[page]?.type === "trivia" || gamesList[page]?.type === "flash")
     return (
       <Layout>
         <TriviaQuestion />
@@ -48,7 +75,9 @@ const Board = () => {
 const User = () => {
   const { players, id, page, gamesList } = useData();
   if (!players[id]) return <Register />;
-  if (page === "lobby") return <UserLobby />;
+  if (page === "lobby" || page === "fastRound" || page === "finish")
+    return <UserLobby />;
+  // if (gamesList[page]?.type === "flash") return <UserFastRound />;
   return <TriviaUserQuestion />;
 };
 

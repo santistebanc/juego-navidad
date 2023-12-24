@@ -9,7 +9,7 @@ import {
 } from "react";
 import PartySocket from "partysocket";
 import Loading from "./Loading";
-import { resouceURL } from "../constants";
+import { localQuestions, resouceURL } from "../constants";
 
 // connect to our server
 const partySocket = new PartySocket({
@@ -52,6 +52,10 @@ const triggerEffect = (effectName: GameEffect) => {
   send({ action: "triggerEffect", effectName });
 };
 
+const fastRoundNext = () => {
+  send({ action: "fastRoundNext" });
+};
+
 const giveAnswer = (
   gameId: string,
   team: string,
@@ -81,6 +85,7 @@ interface DataContextProps extends AppProps {
   triggerEffect: typeof triggerEffect;
   giveAnswer: typeof giveAnswer;
   resetGame: typeof resetGame;
+  fastRoundNext: typeof fastRoundNext;
 }
 
 const DataContext = createContext<DataContextProps>(null);
@@ -98,11 +103,13 @@ export const DataProvider = ({ children }: PropsWithChildren<unknown>) => {
   const [answers, setAnswers] = useState<DataContextProps["answers"]>({});
   const [gameEffect, setGameEffect] =
     useState<DataContextProps["gameEffect"]>("none");
+  const [fastRoundTurn, setFastRoundTurn] =
+    useState<DataContextProps["fastRoundTurn"]>();
 
   useEffect(() => {
     fetch(resouceURL("games", ".json"))
       .then((res) => res.json())
-      .then((obj) => setGamesList(obj));
+      .then((obj) => setGamesList({ ...obj, ...localQuestions }));
 
     const listener = (e: MessageEvent) => {
       if (e.data === "reset") {
@@ -120,6 +127,7 @@ export const DataProvider = ({ children }: PropsWithChildren<unknown>) => {
         setPaused(message.paused);
         setGameEffect(message.gameEffect);
         setAnswers(message.answers);
+        setFastRoundTurn(message.fastRoundTurn);
         setLoading(false);
       }
     };
@@ -132,7 +140,11 @@ export const DataProvider = ({ children }: PropsWithChildren<unknown>) => {
   }, []);
 
   const team = useMemo(() => players[partySocket.id], [players]);
-  const teams = useMemo(() => [...new Set(Object.values(players))], [players]);
+  const teams = useMemo(() => {
+    const l = [...new Set(Object.values(players))];
+    l.sort((a, b) => points[b] - points[a]);
+    return l;
+  }, [players, points]);
   const gameBuzzes = useMemo(() => buzzes[page] ?? [], [buzzes, page]);
 
   const pointsPerTeam = useMemo(
@@ -159,6 +171,7 @@ export const DataProvider = ({ children }: PropsWithChildren<unknown>) => {
         reset,
         gameEffect,
         answers,
+        fastRoundTurn,
         assignTeam,
         buzz,
         togglePause,
@@ -168,6 +181,7 @@ export const DataProvider = ({ children }: PropsWithChildren<unknown>) => {
         triggerEffect,
         giveAnswer,
         resetGame,
+        fastRoundNext,
       }}
     >
       {children}
