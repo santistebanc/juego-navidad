@@ -38,7 +38,6 @@ const ShowGameEffect = () => {
   }, [gameEffect]);
 
   useEffect(() => {
-    console.log(count);
     if (
       (gameEffect === "timer" && count >= 70) ||
       (gameEffect !== "timer" && count >= 30)

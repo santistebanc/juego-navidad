@@ -71,6 +71,7 @@ interface DataContextProps extends AppProps {
   team: string;
   teams: string[];
   gameBuzzes: string[];
+  reset: boolean;
   assignTeam: typeof assignTeam;
   buzz: typeof buzz;
   goToPage: typeof goToPage;
@@ -104,17 +105,23 @@ export const DataProvider = ({ children }: PropsWithChildren<unknown>) => {
       .then((obj) => setGamesList(obj));
 
     const listener = (e: MessageEvent) => {
-      const message: AppProps = JSON.parse(e.data);
-      setPlayers(message.players);
-      setGames(message.games);
-      setBuzzes(message.buzzes);
-      setPoints(message.points);
-      setPage(message.page);
-      setPaused(message.paused);
-      setReset(message.reset);
-      setGameEffect(message.gameEffect);
-      setAnswers(message.answers);
-      setLoading(false);
+      if (e.data === "reset") {
+        setReset(true);
+        setTimeout(() => {
+          setReset(false);
+        }, 0);
+      } else {
+        const message: AppProps = JSON.parse(e.data);
+        setPlayers(message.players);
+        setGames(message.games);
+        setBuzzes(message.buzzes);
+        setPoints(message.points);
+        setPage(message.page);
+        setPaused(message.paused);
+        setGameEffect(message.gameEffect);
+        setAnswers(message.answers);
+        setLoading(false);
+      }
     };
 
     partySocket.addEventListener("message", listener);

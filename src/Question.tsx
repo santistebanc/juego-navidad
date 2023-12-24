@@ -13,7 +13,7 @@ interface Props {
 }
 
 function Question({ question, id, image }: Props) {
-  const { togglePause, reset, paused } = useData();
+  const { reset, paused } = useData();
   const {
     load,
     play: playAudio,
@@ -59,26 +59,20 @@ function Question({ question, id, image }: Props) {
     return () => {
       stopAudio();
     };
-  }, [src]);
+  }, []);
 
   const words = question.split(" ");
   const timePerWord = questionTime / words.length;
 
-  useEffect(() => {
-    if (duration && finished && !playing) {
-      togglePause(true);
-    }
-  }, [duration, playing, finished]);
-
   if (isLoading || !duration) return <Loading />;
 
   return (
-    <div className="m-5 flex max-h-screen max-w-screen-md flex-col items-center justify-center">
+    <div className="flex max-w-screen-md flex-col items-center justify-center">
       <div>
         {words.map((word, i) => (
           <span
             key={word + "+" + i}
-            className={cn("text-3xl text-transparent transition duration-700", {
+            className={cn("text-5xl text-transparent transition duration-700", {
               "text-amber-500": count * 10 > timePerWord * i,
             })}
           >

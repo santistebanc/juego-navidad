@@ -25,7 +25,7 @@ function Admin() {
   const otherTeams = teams.filter((t) => !gameBuzzes.includes(t));
 
   const startClick = () => {
-    goToPage(page === "lobby" ? Object.keys(gamesList)[0] : "lobby");
+    goToPage(page === "lobby" ? games[0] : "lobby");
   };
 
   const resetClick = () => {

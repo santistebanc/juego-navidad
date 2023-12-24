@@ -32,7 +32,7 @@ function GameBuzzes() {
   const turn = gameBuzzes.findIndex((buzz) => answers?.[page]?.[buzz] !== -1);
 
   return (
-    <div className="flex min-h-screen flex-col pt-24">
+    <div className="flex min-h-screen flex-col px-12 pt-24">
       <ul className="flex flex-col text-right" ref={animationParent}>
         {gameBuzzes.map((buzz, i) => (
           <li

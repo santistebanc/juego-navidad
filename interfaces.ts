@@ -7,7 +7,6 @@ export interface AppProps {
   paused: boolean;
   gameEffect: GameEffect;
   answers: Record<string, Record<string, number>>;
-  reset: boolean;
 }
 
 export type ClientMessage =

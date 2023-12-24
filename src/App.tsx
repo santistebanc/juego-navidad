@@ -12,11 +12,11 @@ import GameBuzzes from "./GameBuzzes";
 import MusicQuestion from "./MusicQuestion";
 
 const Layout = ({ children }: PropsWithChildren<unknown>) => (
-  <div className="relative grid min-h-screen auto-cols-max grid-flow-col items-center justify-center bg-[#282c34]">
+  <div className="relative flex min-h-screen items-center justify-center bg-[#282c34]">
     <div>
       <TeamsList />
     </div>
-    <div>{children}</div>
+    <div className="flex-1">{children}</div>
     <GameBuzzes />
     <ShowGameEffect />
   </div>

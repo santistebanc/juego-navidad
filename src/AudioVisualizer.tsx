@@ -3,14 +3,14 @@ import Loading from "./Loading";
 interface Props {
   src: string;
   paused: boolean;
+  reset: boolean;
 }
 
-const AudioVisualizer = ({ src, paused }: Props) => {
+const AudioVisualizer = ({ src, paused, reset }: Props) => {
   const canvasRef = useRef(null);
 
   const [context, setContext] = useState<AudioContext>();
   const [source, setSource] = useState<AudioBufferSourceNode>();
-  const timeouts = useRef<NodeJS.Timeout[]>([]);
 
   const [loading, setLoading] = useState(true);
 
@@ -21,11 +21,8 @@ const AudioVisualizer = ({ src, paused }: Props) => {
     setSource(source);
     return () => {
       context.close();
-      timeouts.current.forEach((t) => {
-        clearTimeout(t);
-      });
     };
-  }, []);
+  }, [reset]);
 
   const audioVisualizerLogic = () => {
     const canvas = canvasRef.current;
@@ -49,12 +46,12 @@ const AudioVisualizer = ({ src, paused }: Props) => {
       x = null;
 
     //core logic for the visualizer
-    timeouts.current = [];
     const renderFrame = () => {
       ctx.fillStyle = "rgba(0,0,0,0)";
       requestAnimationFrame(renderFrame);
       x = 0;
       analyser.getByteFrequencyData(dataArray);
+      ctx.clearRect(0, 0, WIDTH, HEIGHT);
       ctx.fillRect(0, 0, WIDTH, HEIGHT);
 
       for (let i = 0; i < bufferLength; i++) {
@@ -66,26 +63,14 @@ const AudioVisualizer = ({ src, paused }: Props) => {
         ctx.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
         ctx.fillRect(x, HEIGHT - barHeight, barWidth, barHeight);
         x += barWidth + 1;
-
-        //Allows visualizer to overlay on a background/video by clearing the rects after painting.
-        let timer = setTimeout(() => {
-          ctx.clearRect(0, 0, WIDTH, HEIGHT);
-        }, 50);
-        timeouts.current.push(timer);
       }
     };
-    //Clears the accumulating timeouts.
-    setTimeout(() => {
-      for (let i = 0; i < timeouts.current.length; i++) {
-        return clearTimeout(timeouts.current[i]);
-      }
-    }, 51);
     renderFrame();
   };
 
   //connect audio visualizer to DOM and execute logic
   useEffect(() => {
-    if (context && source) {
+    if (context && source && canvasRef.current) {
       fetch(src)
         .then((response) => response.arrayBuffer())
         .then((response) => {
@@ -94,12 +79,14 @@ const AudioVisualizer = ({ src, paused }: Props) => {
             source.buffer = buffer;
             source.connect(context.destination);
             source.start(0);
-            context.suspend();
+            if (paused) {
+              context.suspend();
+            }
           });
         });
       audioVisualizerLogic();
     }
-  }, [context, source]);
+  }, [context, source, canvasRef.current]);
 
   useEffect(() => {
     if (paused && context?.state === "running") {

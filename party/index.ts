@@ -13,13 +13,13 @@ export default class WebSocketServer implements Party.Server {
   paused: boolean = false;
   gameEffect: GameEffect = "none";
   answers: Record<string, Record<string, number>> = {};
-  reset: boolean = false;
 
   onStart() {
     fetch(resouceURL("games", ".json"))
       .then((res) => res.json())
       .then((obj) => {
         this.games = Object.keys(obj);
+        this.games.sort((a, b) => 0.5 - Math.random());
       });
   }
 
@@ -63,7 +63,7 @@ export default class WebSocketServer implements Party.Server {
     } else if (data.action === "resetGame") {
       delete this.answers[data.gameId];
       delete this.buzzes[data.gameId];
-      this.reset = true;
+      this.party.broadcast("reset");
     }
     this.update();
   }
@@ -87,7 +87,6 @@ export default class WebSocketServer implements Party.Server {
       paused: this.paused,
       gameEffect: this.gameEffect,
       answers: this.answers,
-      reset: this.reset,
     });
 
     this.party.broadcast(
@@ -100,10 +99,7 @@ export default class WebSocketServer implements Party.Server {
         paused: this.paused,
         gameEffect: this.gameEffect,
         answers: this.answers,
-        reset: this.reset,
       })
     );
-
-    this.reset = false;
   }
 }
