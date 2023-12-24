@@ -4,10 +4,7 @@ import { useGlobalAudioPlayer } from "react-use-audio-player";
 import { useEffect } from "react";
 import { useData } from "./DataContext";
 import Loading from "./Loading";
-import { s3host } from "../constants";
-
-const resouceURL = (id: string, postfix?: string) =>
-  s3host + id + (postfix ?? "");
+import { resouceURL } from "../constants";
 
 interface Props {
   id: string;
@@ -80,7 +77,7 @@ function Question({ question, id, image }: Props) {
       <div>
         {words.map((word, i) => (
           <span
-            key={word}
+            key={word + "+" + i}
             className={cn("text-3xl text-transparent transition duration-700", {
               "text-amber-500": count * 10 > timePerWord * i,
             })}

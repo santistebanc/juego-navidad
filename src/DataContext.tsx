@@ -9,7 +9,7 @@ import {
 } from "react";
 import PartySocket from "partysocket";
 import Loading from "./Loading";
-import { s3host } from "../constants";
+import { resouceURL } from "../constants";
 
 // connect to our server
 const partySocket = new PartySocket({
@@ -52,8 +52,13 @@ const triggerEffect = (effectName: GameEffect) => {
   send({ action: "triggerEffect", effectName });
 };
 
-const giveAnswer = (gameId: string, team: string, answer: number) => {
-  send({ action: "giveAnswer", gameId, team, answer });
+const giveAnswer = (
+  gameId: string,
+  team: string,
+  answer: number,
+  points: number
+) => {
+  send({ action: "giveAnswer", gameId, team, answer, points });
 };
 
 const resetGame = (gameId: string) => {
@@ -94,7 +99,7 @@ export const DataProvider = ({ children }: PropsWithChildren<unknown>) => {
     useState<DataContextProps["gameEffect"]>("none");
 
   useEffect(() => {
-    fetch(s3host + "games.json")
+    fetch(resouceURL("games", ".json"))
       .then((res) => res.json())
       .then((obj) => setGamesList(obj));
 

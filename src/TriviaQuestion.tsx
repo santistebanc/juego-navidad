@@ -1,4 +1,3 @@
-import { useAutoAnimate } from "@formkit/auto-animate/react";
 import Question from "./Question";
 import { useData } from "./DataContext";
 import { useMemo } from "react";

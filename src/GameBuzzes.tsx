@@ -31,8 +31,6 @@ function GameBuzzes() {
 
   const turn = gameBuzzes.findIndex((buzz) => answers?.[page]?.[buzz] !== -1);
 
-  console.log(answers, turn);
-
   return (
     <div className="flex min-h-screen flex-col pt-24">
       <ul className="flex flex-col text-right" ref={animationParent}>

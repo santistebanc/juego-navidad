@@ -13,7 +13,6 @@ function Admin() {
     togglePause,
     paused,
     gameBuzzes,
-    givePoints,
     gamesList,
     triggerEffect,
     giveAnswer,
@@ -37,10 +36,6 @@ function Admin() {
     togglePause();
   };
 
-  const awardPoints = (team: string, points: number) => () => {
-    givePoints(team, points);
-  };
-
   const correctClick = () => {
     triggerEffect("correct");
   };
@@ -58,20 +53,16 @@ function Admin() {
   };
 
   const clickCorrectAnswer = (team: string) => () => {
-    triggerEffect("correct");
-    giveAnswer(page, team, 1);
-    givePoints(team, game.points);
+    giveAnswer(page, team, 1, game.points);
   };
 
   const clickWrongAnswer = (team: string) => () => {
-    triggerEffect("wrong");
-    giveAnswer(page, team, -1);
-    givePoints(team, -game.points);
+    giveAnswer(page, team, -1, -Math.round(game.points / 2));
   };
 
   return (
     <div className="text-center selection:bg-green-900">
-      <header className="flex min-h-screen flex-col items-center justify-center gap-4 bg-[#282c34] text-white">
+      <header className="flex max-h-screen flex-col items-center justify-center gap-4 bg-[#282c34] p-4 text-white">
         <GamesTable />
         <div className="flex gap-4">
           <Button onClick={startClick} className="bg-red-800 hover:bg-red-900">
@@ -141,7 +132,7 @@ function Admin() {
                   variant="outline"
                   className="h-auto border-red-800 bg-transparent p-1 hover:bg-red-900 hover:text-blue-50"
                 >
-                  {`Wrong - ${game.points}`}
+                  {`Wrong - ${Math.round(game.points / 2)}`}
                 </Button>
                 <ManualPoints team={buzz} />
               </div>

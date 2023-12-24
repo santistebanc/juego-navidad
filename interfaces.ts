@@ -47,6 +47,7 @@ export type ClientMessage =
       gameId: string;
       team: string;
       answer: number;
+      points: number;
     }
   | {
       action: "resetGame";

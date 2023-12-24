@@ -1,6 +1,6 @@
 import type * as Party from "partykit/server";
 import { ClientMessage, GameEffect } from "../interfaces";
-import { s3host } from "../constants";
+import { resouceURL } from "../constants";
 
 export default class WebSocketServer implements Party.Server {
   constructor(readonly party: Party.Party) {}
@@ -16,7 +16,7 @@ export default class WebSocketServer implements Party.Server {
   reset: boolean = false;
 
   onStart() {
-    fetch(s3host + "games.json")
+    fetch(resouceURL("games", ".json"))
       .then((res) => res.json())
       .then((obj) => {
         this.games = Object.keys(obj);
@@ -49,6 +49,12 @@ export default class WebSocketServer implements Party.Server {
     } else if (data.action === "triggerEffect") {
       this.gameEffect = data.effectName;
     } else if (data.action === "giveAnswer") {
+      this.paused = true;
+      this.gameEffect = data.answer === 1 ? "correct" : "wrong";
+      if (!this.points[data.team]) {
+        this.points[data.team] = 0;
+      }
+      this.points[data.team] += data.points;
       if (!this.answers[data.gameId]) {
         this.answers[data.gameId] = { [data.team]: data.answer };
       } else {
